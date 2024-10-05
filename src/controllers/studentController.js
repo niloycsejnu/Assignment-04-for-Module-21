@@ -43,23 +43,7 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     limits: { fileSize: 900000000000000000000000000000 }, //  limit for example
-    fileFilter: (req, file, cb) => {
-        checkFileType(file, cb);
-    }
 }).single('file'); // Only single file upload
-
-// Check file type (optional)
-function checkFileType(file, cb) {
-    const filetypes = /jpeg|jpg|png|pdf/; // Allowed file types
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-        return cb(null, true);
-    } else {
-        cb('Error: Images and PDFs only!');
-    }
-}
 
 // File upload handler
 exports.uploadFile = (req, res) => {
