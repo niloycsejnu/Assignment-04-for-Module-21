@@ -3,15 +3,25 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Register a new student
+
+// Regular expression to validate email format
+const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+
 exports.registerStudent = async (req, res) => {
-    const { name, email, password , dept, address} = req.body;
+    const { name, email, password, dept, address } = req.body;
+
+    // Validate email format
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ message: "Invalid email format. Email should contain small letters, '@' sign and '.com' domain" });
+    }
+
     try {
         // Check if student exists
         let student = await Student.findOne({ email });
         if (student) return res.status(400).json({ message: "Student already exists" });
 
         // Create new student
-        student = new Student({ name, email, password , dept, address});
+        student = new Student({ name, email, password, dept, address });
         await student.save();
 
         res.status(201).json({ message: "Student registered successfully" });
