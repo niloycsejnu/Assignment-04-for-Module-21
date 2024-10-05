@@ -16,8 +16,17 @@ exports.getProfile = async (req, res) => {
 };
 
 // Update student profile
+// Regular expression to validate email format
+const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+
 exports.updateProfile = async (req, res) => {
     const { name, email, dept, address } = req.body;
+
+    // Validate email format
+    if (email && !emailRegex.test(email)) {
+        return res.status(400).json({ message: "Invalid email format. Email should contain small letters, '@' sign and '.com' domain" });
+    }
+
     try {
         const updatedStudent = await Student.findByIdAndUpdate(
             req.student.id,
@@ -57,7 +66,7 @@ exports.uploadFile = (req, res) => {
         }
 
         // Send the file path as a response
-        res.json({ filePath: `/uploads/${req.file.filename}` });
+        res.json({message: 'File Uploaded Successfully', filePath: `/uploads/${req.file.filename}` });
     });
 };
 
