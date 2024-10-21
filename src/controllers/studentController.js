@@ -70,7 +70,53 @@ exports.uploadFile = (req, res) => {
     });
 };
 
+// File read handler
+exports.readFile = (req, res) => {
+    const { filename } = req.params; // Get the filename from the request parameters
+    const filePath = path.join(process.cwd(), 'uploads', filename); // Construct the full path to the file
 
+    // Check if the file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        // Determine file extension
+        const ext = path.extname(filename).toLowerCase();
+
+        // Read binary files (images, etc.) and text files differently
+        const binaryExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.pdf'];
+
+        if (binaryExtensions.includes(ext)) {
+            // For binary files
+            fs.readFile(filePath, (err, data) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error reading file' });
+                }
+
+                // Set the correct content-type for binary files
+                const mimeTypes = {
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.jpeg': 'image/jpeg',
+                    '.gif': 'image/gif',
+                    '.pdf': 'application/pdf'
+                };
+
+                res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+                res.send(data); // Send the binary data directly
+            });
+        } else {
+            // For text files
+            fs.readFile(filePath, 'utf8', (err, data) => {
+                if (err) {
+                    return res.status(500).json({ message: 'Error reading file' });
+                }
+                res.json({ message: 'File read successfully', content: data });
+            });
+        }
+    });
+};
 // File delete handler
 
 exports.deleteFile = (req, res) => {

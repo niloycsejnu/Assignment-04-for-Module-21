@@ -11,12 +11,13 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/uploads', express.static('uploads')); // Serve static files from the uploads folder
-
+app.use(studentRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
